@@ -1,5 +1,5 @@
 #include "espManager.h"
-
+#include "ArduinoJson.h"
 //String SSID = "Alice-38803138";
 //String PASSWORD = "";
 String SSID = "dati";
@@ -37,9 +37,35 @@ void listen()
 {
   if(Esp8266.available()) // check if the esp is sending a message
  {
-  Serial.print(Esp8266.readString());
+   String s=Esp8266.readString();
+  Serial.print(s);
 
-   if(Esp8266.find("+IPD,") || 1)
+int conIndex=s.indexOf("+IPD,");
+Serial.println(conIndex);
+int connectionId = s[conIndex+5]-48;
+Serial.println(connectionId);
+String closeCommand = "AT+CIPCLOSE=";
+closeCommand+=connectionId; // append connection id
+closeCommand+="\r\n";
+sendData(closeCommand,1000,DEBUG);
+
+int jsonIndex=s.indexOf("{");
+Serial.println(jsonIndex);
+
+String json="";
+int j=0;
+
+for(j=jsonIndex;j<s.length();j++)
+{
+  json+=s[j];
+}
+
+Serial.println(json);
+StaticJsonBuffer<500> jsonBuffer;
+JsonObject& root = jsonBuffer.parseObject(json);
+int jsonB=root["bau"].as<int>();
+Serial.println(jsonB);
+   /*if(Esp8266.find("+IPD,"))
    {
     delay(1000); // wait for the serial buffer to fill up (read all the serial data)
     // get the connection id so that we can then disconnect
@@ -59,10 +85,11 @@ void listen()
     closeCommand+="\r\n";
 
     sendData(closeCommand,1000,DEBUG); // close connection
-   }
+  }*/
 
  }
 }
+
 
 /*
 * Name: sendData
