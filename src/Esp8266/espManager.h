@@ -2,6 +2,7 @@
 #include <SoftwareSerial.h>
 #include <Time.h>
 #include <Timezone.h>
+#include "../data.h"
 
 #define Esp8266 Serial2
 #define DEBUG true

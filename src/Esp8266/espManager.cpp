@@ -1,11 +1,22 @@
 #include "espManager.h"
 #include "ArduinoJson.h"
-//String SSID = "Alice-38803138";
-//String PASSWORD = "";
-String SSID = "dati";
-String PASSWORD = "aababb9995";
+
+String SSID = "Alice-38803138";
+String PASSWORD = "";
+//String SSID = "dati";
+//String PASSWORD = "aababb9995";
 
 const char* host = "time.nist.gov";
+
+typedef enum {
+  SETSTANDARDPALETTE,
+  SETCUSTOMPALETTE,
+  SETSINGLECOLOR,
+  SETMULTIPLECOLOR,
+  SHUTDOWNLED,
+POWERONLED
+}METHOD;
+
 
 void setupEsp() {
 
@@ -28,7 +39,7 @@ if(cwJoinAP())
 Serial.println("CWJAP Success");
   sendData("AT+CIFSR\r\n",1000,DEBUG); // get ip address
   sendData("AT+CIPMUX=1\r\n",1000,DEBUG); // configure for multiple connections
-  sendData("AT+CIPSERVER=1,80\r\n",1000,DEBUG); // turn on server on port 80
+  sendData("AT+CIPSERVER=1,8080\r\n",1000,DEBUG); // turn on server on port 80
 
 }
 
@@ -37,55 +48,62 @@ void listen()
 {
   if(Esp8266.available()) // check if the esp is sending a message
  {
-   String s=Esp8266.readString();
-  Serial.print(s);
+    String s=Esp8266.readString();
+    Serial.print(s);
 
-int conIndex=s.indexOf("+IPD,");
-Serial.println(conIndex);
-int connectionId = s[conIndex+5]-48;
-Serial.println(connectionId);
-String closeCommand = "AT+CIPCLOSE=";
-closeCommand+=connectionId; // append connection id
-closeCommand+="\r\n";
-sendData(closeCommand,1000,DEBUG);
-
-int jsonIndex=s.indexOf("{");
-Serial.println(jsonIndex);
-
-String json="";
-int j=0;
-
-for(j=jsonIndex;j<s.length();j++)
-{
-  json+=s[j];
-}
-
-Serial.println(json);
-StaticJsonBuffer<500> jsonBuffer;
-JsonObject& root = jsonBuffer.parseObject(json);
-int jsonB=root["bau"].as<int>();
-Serial.println(jsonB);
-   /*if(Esp8266.find("+IPD,"))
-   {
-    delay(1000); // wait for the serial buffer to fill up (read all the serial data)
-    // get the connection id so that we can then disconnect
-    int connectionId = Esp8266.read()-48; // subtract 48 because the read() function returns
-                                          // the ASCII decimal value and 0 (the first decimal number) starts at 48
-
-    Esp8266.find("pin="); // advance cursor to "pin="
-
-    int pinNumber = (Esp8266.read()-48)*10; // get first number i.e. if the pin 13 then the 1st number is 1, then multiply to get 10
-    pinNumber += (Esp8266.read()-48); // get second number, i.e. if the pin number is 13 then the 2nd number is 3, then add to the first number
-    Serial.print(pinNumber);
-    digitalWrite(pinNumber, !digitalRead(pinNumber)); // toggle pin
-
-    // make close command
+    int conIndex=s.indexOf("+IPD,");
+    Serial.println(conIndex);
+    int connectionId = s[conIndex+5]-48;
+    Serial.println(connectionId);
     String closeCommand = "AT+CIPCLOSE=";
     closeCommand+=connectionId; // append connection id
     closeCommand+="\r\n";
+    sendData(closeCommand,1000,DEBUG);
 
-    sendData(closeCommand,1000,DEBUG); // close connection
-  }*/
+    int jsonIndex=s.indexOf("{");
+    Serial.println(jsonIndex);
+
+    String json="";
+    int j=0;
+
+    for(j=jsonIndex;j<s.length();j++)
+    {
+      json+=s[j];
+    }
+
+    Serial.println(json);
+    StaticJsonBuffer<500> jsonBuffer;
+    JsonObject& root = jsonBuffer.parseObject(json);
+    int method=root["method"].as<int>();
+
+     switch (method) {
+       case SETSTANDARDPALETTE:
+       {
+         break;
+       }
+       case SETCUSTOMPALETTE:
+       {
+         break;
+       }
+       case SETSINGLECOLOR:
+       {
+         break;
+       }
+       case SETMULTIPLECOLOR:
+       {
+        break;
+       }
+       case SHUTDOWNLED:
+       {
+         setLedState(false);
+         break;
+       }
+       case POWERONLED:
+       {
+         setLedState(true);
+       }
+
+     }
 
  }
 }

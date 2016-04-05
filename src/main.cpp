@@ -1,8 +1,8 @@
 #include "Arduino.h"
-#include "Esp8266\espManager.h"
-#include "Led\led.h"
+#include "Esp8266/espManager.h"
+#include "Led/led.h"
 #include <FlexiTimer2.h>
-
+#include "data.h"
 void ledManager();
 
 void setup()
@@ -27,5 +27,8 @@ void loop()
 
 void ledManager()
 {
-  rainbowEffect();
+  if(getLedState())
+    palette();
+  else
+    setOffAllLED();
 }

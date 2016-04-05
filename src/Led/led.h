@@ -1,5 +1,6 @@
 
 #include "FastLED.h"
+#include "../data.h"
 
 #define LED_PIN     35
 #define NUM_LEDS    2
@@ -12,4 +13,5 @@
 
 void initLed();
 void gestLed();
-void rainbowEffect();
+void palette();
+void setOffAllLED();
