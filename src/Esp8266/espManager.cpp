@@ -11,16 +11,16 @@ void setupEsp() {
 
 
   Serial.begin(115200);
-  ESP8266.begin(115200); // your esp's baud rate might be different
+  Esp8266.begin(115200); // your esp's baud rate might be different
   sendData("AT+RST\r\n",2000,DEBUG); // reset module
   sendData("AT+CWLAP\r\n",2000,DEBUG); // reset module
 
 
-  ESP8266.println("AT+GMR");
+  Esp8266.println("AT+GMR");
   clearESP8266SerialBuffer();
   sendData("AT+CWMODE=1\r\n",2000,DEBUG); // configure as access point
   clearESP8266SerialBuffer();
-  ESP8266.println("AT+CWQAP");
+  Esp8266.println("AT+CWQAP");
 
 
    clearESP8266SerialBuffer();
@@ -35,21 +35,21 @@ Serial.println("CWJAP Success");
 
 void listen()
 {
-  if(ESP8266.available()) // check if the esp is sending a message
+  if(Esp8266.available()) // check if the esp is sending a message
  {
+  Serial.print(Esp8266.readString());
 
-
-   if(ESP8266.find("+IPD,"))
+   if(Esp8266.find("+IPD,") || 1)
    {
     delay(1000); // wait for the serial buffer to fill up (read all the serial data)
     // get the connection id so that we can then disconnect
-    int connectionId = ESP8266.read()-48; // subtract 48 because the read() function returns
+    int connectionId = Esp8266.read()-48; // subtract 48 because the read() function returns
                                           // the ASCII decimal value and 0 (the first decimal number) starts at 48
 
-    ESP8266.find("pin="); // advance cursor to "pin="
+    Esp8266.find("pin="); // advance cursor to "pin="
 
-    int pinNumber = (ESP8266.read()-48)*10; // get first number i.e. if the pin 13 then the 1st number is 1, then multiply to get 10
-    pinNumber += (ESP8266.read()-48); // get second number, i.e. if the pin number is 13 then the 2nd number is 3, then add to the first number
+    int pinNumber = (Esp8266.read()-48)*10; // get first number i.e. if the pin 13 then the 1st number is 1, then multiply to get 10
+    pinNumber += (Esp8266.read()-48); // get second number, i.e. if the pin number is 13 then the 2nd number is 3, then add to the first number
     Serial.print(pinNumber);
     digitalWrite(pinNumber, !digitalRead(pinNumber)); // toggle pin
 
@@ -74,17 +74,17 @@ String sendData(String command, const int timeout, boolean debug)
 {
     String response = "";
 
-    ESP8266.print(command); // send the read character to the Serial2
+    Esp8266.print(command); // send the read character to the Serial2
 
     long int time = millis();
 
     while( (time+timeout) > millis())
     {
-      while(ESP8266.available())
+      while(Esp8266.available())
       {
 
         // The esp has data so display its output to the serial window
-        char c = ESP8266.read(); // read the next character.
+        char c = Esp8266.read(); // read the next character.
         response+=c;
       }
     }
@@ -117,11 +117,11 @@ void getTime(/* arguments */) {
   sendData(cmd+"\r\n",2000,DEBUG);
 
 cmd="AT+CIPSEND=1, ";
-ESP8266.print(cmd);
-ESP8266.println(sizeof(query));
+Esp8266.print(cmd);
+Esp8266.println(sizeof(query));
 wait_for_esp_response(1000,OKrn);
-ESP8266.write((uint8_t *)query,sizeof(query));
-ESP8266.readBytes(buffer,sizeof(query));
+Esp8266.write((uint8_t *)query,sizeof(query));
+Esp8266.readBytes(buffer,sizeof(query));
 
 unsigned long secsSince1900;
   secsSince1900 = (unsigned long)buffer[40] << 24;
@@ -148,7 +148,7 @@ boolean waitOKfromESP8266(int timeout)
   do{
     Serial.println("wait OK...");
     delay(1000);
-    if(ESP8266.find("OK"))
+    if(Esp8266.find("OK"))
     {
       return true;
     }
@@ -160,7 +160,7 @@ boolean waitOKfromESP8266(int timeout)
 boolean cwJoinAP()
 {
    String cmd="AT+CWJAP=\"" + SSID + "\",\"" + PASSWORD + "\"";
-  ESP8266.println(cmd);
+  Esp8266.println(cmd);
   return waitOKfromESP8266(10);
 }
 
@@ -168,8 +168,8 @@ boolean cwJoinAP()
 void clearESP8266SerialBuffer()
 {
   Serial.println("= clearESP8266SerialBuffer() =");
-  while (ESP8266.available() > 0) {
-    char a = ESP8266.read();
+  while (Esp8266.available() > 0) {
+    char a = Esp8266.read();
     Serial.write(a);
   }
   Serial.println("==============================");

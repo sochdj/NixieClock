@@ -1,22 +1,18 @@
 #include "Arduino.h"
 #include "Esp8266\espManager.h"
+#include "Led\led.h"
+#include <FlexiTimer2.h>
 
+void ledManager();
 
-bool toggle=false;
 void setup()
 {
-  pinMode(11,OUTPUT);
-   digitalWrite(11,LOW);
-
-   pinMode(12,OUTPUT);
-   digitalWrite(12,LOW);
-
-   pinMode(13,OUTPUT);
-   digitalWrite(13,LOW);
-   pinMode(35,OUTPUT);
-     digitalWrite(35,LOW);
-
+pinMode(13,OUTPUT);
+initLed();
+FlexiTimer2::set(10, ledManager); // 500ms period
+FlexiTimer2::start();
   setupEsp();
+
 }
 
 void loop()
@@ -25,6 +21,11 @@ void loop()
   listen();
 
 //getTime();
- delay(2000);
+// delay(2000);
 
+}
+
+void ledManager()
+{
+  rainbowEffect();
 }
