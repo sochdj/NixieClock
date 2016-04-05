@@ -5,7 +5,6 @@
 #include "data.h"
 void ledManager();
 
-
 void setup()
 {
 pinMode(13,OUTPUT);
